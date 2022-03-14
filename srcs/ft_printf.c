@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/09 18:21:49 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/14 17:10:22 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,26 @@ int	int_putstr_len(char *str, int len)
 	return (res);
 }
 
+int	get_digits(int nb, int base)
+{
+	int	digits;
+
+	digits = 0;
+	if (nb == -214748364)
+		return (11);
+	if (nb < 0)
+	{
+		digits++;
+		nb *= -1;
+	}
+	while (nb)
+	{
+		digits++;
+		nb /= base;
+	}
+	return (digits);
+}
+
 
 int	ft_print_s(t_args *args, char *s, int total_len)
 {
@@ -102,6 +122,46 @@ int	ft_s(t_args *args, va_list *ap)
 	return (ft_print_s(args, s, total_len));
 }
 
+int	int_putnbr(int nb)
+{
+	long	i;
+	int		res;
+
+	res = 0;
+	i = nb;
+	if (i < 0)
+	{
+		i *= -1;
+		ft_putchar('-');
+	}
+	if (i >= 10)
+	{
+		ft_putnbr(i / 10);
+		ft_putnbr(i % 10);
+	}
+	else
+		ft_putchar(i + '0');
+	return (res);
+}
+
+int	ft_d(t_args *args, va_list *ap)
+{
+	int	res;
+	int	d;
+
+	res = 0;
+	d = va_arg(*ap, int);
+	if (!args->has_precision)
+		args->precision = get_digits(d, 10);
+	if (args->alignment == '-')
+		res += int_putnbr(d);
+	while (args->width-- >args->precision)
+		res+= int_putchar(args->padding);
+	if (args->alignment != '-')
+		res+= int_putnbr(d);
+	return (res);
+}
+
 int	ft_c(t_args *args, va_list *ap)
 {
 	int	c;
@@ -114,40 +174,23 @@ int	ft_c(t_args *args, va_list *ap)
 	while (args->width-- > 1)
 		res += int_putchar(args->padding);
 	if (args->alignment != '-')
-	res += int_putchar(c);
+		res += int_putchar(c);
 	return (res);
 }
 
 int	ft_put_conv(t_args *args, va_list *ap)
 {
-	if (args->c == 's')
-		return (ft_s(args, ap));
 	if (args->c == 'c')
 		return (ft_c(args, ap));
+	if (args->c == 's')
+		return (ft_s(args, ap));
+	if (args->c == 'd')
+		return (ft_d(args, ap));
 //	else if (args->c == 'x')
 //		return ft_put_x(args, ap);
 	return (0);
 }
 
-int	get_digits(int nb)
-{
-	int	digits;
-
-	digits = 0;
-	if (nb == -214748364)
-		return (11);
-	if (nb < 0)
-	{
-		digits++;
-		nb *= -1;
-	}
-	while (nb)
-	{
-		digits++;
-		nb /= 10;
-	}
-	return (digits);
-}
 
 char	*read_args(t_args *args, char *itr)
 {
@@ -160,7 +203,7 @@ char	*read_args(t_args *args, char *itr)
 		args->flag = *itr++;
 	if (ft_isdigit(*itr))
 		args->has_width = 1;
-		itr += get_digits(args->width = ft_atoi(itr));
+		itr += get_digits(args->width = ft_atoi(itr), 10);
 	if (*itr == '.')
 	{
 		if (ft_isdigit(*++itr))
@@ -169,7 +212,7 @@ char	*read_args(t_args *args, char *itr)
 			args->precision = ft_atoi(itr);
 			if (args->precision == 0)
 				itr++;
-			itr += get_digits(args->precision);
+			itr += get_digits(args->precision, 10);
 		}
 	}
 	if (ft_strchr(CONV, *itr))
@@ -211,3 +254,81 @@ int			ft_printf(const char *format, ...)
 	va_end(ap);
 	return (res);
 }
+
+
+int	main(void)
+{
+	ft_printf("01.[%d]\n", 123);
+	printf("01.[%d]\n", 123);
+	ft_printf("02.[%d]\n", -123);
+	printf("02.[%d]\n", -123);
+	ft_printf("03.[%d]\n", -2147483648);
+	printf("03.[%d]\n", -2147483648);
+	ft_printf("04.[%d]\n", 2147483647);
+	printf("04.[%d]\n", 2147483647);
+	ft_printf("05.[%.0d]\n", -2147483648);
+	printf("05.[%.0d]\n", -2147483648);
+	ft_printf("06.[%.5d]\n", -2147483648);
+	printf("06.[%.5d]\n", -2147483648);
+	ft_printf("07.[%.10d]\n", -2147483648);
+	printf("07.[%.10d]\n", -2147483648);
+	ft_printf("08.[%.20d]\n", -2147483648);
+	printf("08.[%.20d]\n", -2147483648);
+	ft_printf("09.[%.d]\n", -2147483648);
+	printf("09.[%.d]\n", -2147483648);
+	ft_printf("10.[%10.d]\n", -2147483648);
+	printf("10.[%10.d]\n", -2147483648);
+	ft_printf("11.[%20.d]\n", -2147483648);
+	printf("11.[%20.d]\n", -2147483648);
+	ft_printf("12.[%0.0d]\n", -2147483648);
+	printf("12.[%0.0d]\n", -2147483648);
+	ft_printf("13.[%5.0d]\n", -2147483648);
+	printf("13.[%5.0d]\n", -2147483648);
+	ft_printf("14.[%10.0d]\n", -2147483648);
+	printf("14.[%10.0d]\n", -2147483648);
+	ft_printf("15.[%20.0d]\n", -2147483648);
+	printf("15.[%20.0d]\n", -2147483648);
+	ft_printf("16.[%0.0d]\n", -2147483648);
+	printf("16.[%0.0d]\n", -2147483648);
+	ft_printf("17.[%0.5d]\n", -2147483648);
+	printf("17.[%0.5d]\n", -2147483648);
+	ft_printf("18.[%0.10d]\n", -2147483648);
+	printf("18.[%0.10d]\n", -2147483648);
+	ft_printf("19.[%0.20d]\n", -2147483648);
+	printf("19.[%0.20d]\n", -2147483648);
+	ft_printf("20.[%5.0d]\n", -2147483648);
+	printf("20.[%5.0d]\n", -2147483648);
+	ft_printf("21.[%5.5d]\n", -2147483648);
+	printf("21.[%5.5d]\n", -2147483648);
+	ft_printf("22.[%5.10d]\n", -2147483648);
+	printf("22.[%5.10d]\n", -2147483648);
+	ft_printf("23.[%5.20d]\n", -2147483648);
+	printf("23.[%5.20d]\n", -2147483648);
+	ft_printf("24.[%10.0d]\n", -2147483648);
+	printf("24.[%10.0d]\n", -2147483648);
+	ft_printf("25.[%10.5d]\n", -2147483648);
+	printf("25.[%10.5d]\n", -2147483648);
+	ft_printf("26.[%10.10d]\n", -2147483648);
+	printf("26.[%10.10d]\n", -2147483648);
+	ft_printf("27.[%10.20d]\n", -2147483648);
+	printf("27.[%10.20d]\n", -2147483648);
+	ft_printf("28.[%20.0d]\n", -2147483648);
+	printf("28.[%20.0d]\n", -2147483648);
+	ft_printf("29.[%20.5d]\n", -2147483648);
+	printf("29.[%20.5d]\n", -2147483648);
+	ft_printf("30.[%20.10d]\n", -2147483648);
+	printf("30.[%20.10d]\n", -2147483648);
+	ft_printf("31.[%20.20d]\n", -2147483648);
+	printf("31.[%20.20d]\n", -2147483648);
+	ft_printf("32.[%10d]\n", 0);
+	printf("32.[%10d]\n", 0);
+	ft_printf("33.[%10.d]\n", 0);
+	printf("33.[%10.d]\n", 0);
+	ft_printf("34.[%10.0d]\n", 0);
+	printf("34.[%10.0d]\n", 0);
+	ft_printf("35.[%.0d]\n", 0);
+	printf("36.[%.0d]\n", 0);
+	ft_printf("37.[%10.0d]\n", 10);
+	printf("38.[%10.0d]\n", 10);
+}
+
