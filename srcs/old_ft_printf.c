@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/21 00:20:23 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/09 18:21:49 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,32 +23,15 @@ void	print_args(t_args *args)
 */
 void	initialize_args(t_args *args)
 {
-	args->c = INIT;
-	args->precision = INIT;
-	args->width = INIT;
-	args->body = 0;
+	args->c = 0;
+	args->has_width = 0;
+	args->has_precision = 0;
+	args->width = 0;
+	args->precision = 0;
+	args->flag = 0;
 	args->alignment = 0;
 	args->padding = ' ';
-	args->res = 0;
-	args->prefix = "";
 }
-
-int	is_specifier(char c)
-{
-	int		i;
-	char	*specs;
-
-	specs = "cspdiuxX%";
-	i = 0;
-	while (i < SPEC_NUM)
-	{
-		if (specs[i] == c)
-			return (i);
-		i++;
-	}
-	return (-1);
-}
-
 
 int	int_putchar(char c)
 {
@@ -86,6 +69,66 @@ int	int_putstr_len(char *str, int len)
 	return (res);
 }
 
+
+int	ft_print_s(t_args *args, char *s, int total_len)
+{
+	int	res;
+
+	res = 0;
+	if (args->alignment == '-')
+	{
+		res += int_putstr_len(s, args->precision);
+		total_len -= args->precision;
+		args->precision = 0;
+	}
+	while (total_len-- > args->precision)
+		res += int_putchar(args->padding);
+	return (res += int_putstr_len(s, args->precision));
+}
+
+int	ft_s(t_args *args, va_list *ap)
+{
+	char	*s;
+	int		total_len;
+
+	s = va_arg(*ap, char *);
+	if (!s)
+		s = "(null)";
+	total_len = ft_strlen(s);
+	if (args->has_width)
+			total_len = args->width;
+	if (!args->has_precision)
+		args->precision = ft_strlen(s);
+	return (ft_print_s(args, s, total_len));
+}
+
+int	ft_c(t_args *args, va_list *ap)
+{
+	int	c;
+	int	res;
+
+	res = 0;
+	c = va_arg(*ap, int);
+	if (args->alignment == '-')
+		res += int_putchar(c);
+	while (args->width-- > 1)
+		res += int_putchar(args->padding);
+	if (args->alignment != '-')
+	res += int_putchar(c);
+	return (res);
+}
+
+int	ft_put_conv(t_args *args, va_list *ap)
+{
+	if (args->c == 's')
+		return (ft_s(args, ap));
+	if (args->c == 'c')
+		return (ft_c(args, ap));
+//	else if (args->c == 'x')
+//		return ft_put_x(args, ap);
+	return (0);
+}
+
 int	get_digits(int nb)
 {
 	int	digits;
@@ -106,36 +149,32 @@ int	get_digits(int nb)
 	return (digits);
 }
 
-void	put_width(char *itr, t_args *args, va_list *ap)
+char	*read_args(t_args *args, char *itr)
 {
-	int	nb;
-
-	nb = 0;
-	if (itr == '*')
+	initialize_args(args);
+	if (*itr == '-' || *itr == '+')
+		args->alignment = *itr++;
+	if (*itr == '0')
+		args->padding = *itr++;
+	if (*itr == '#' || *itr == ' ')
+		args->flag = *itr++;
+	if (ft_isdigit(*itr))
+		args->has_width = 1;
+		itr += get_digits(args->width = ft_atoi(itr));
+	if (*itr == '.')
 	{
-		
+		if (ft_isdigit(*++itr))
+		{
+			args->has_precision = 1;
+			args->precision = ft_atoi(itr);
+			if (args->precision == 0)
+				itr++;
+			itr += get_digits(args->precision);
+		}
 	}
-
-
-}
-
-int		read_percentage(char *itr, size_t *i, va_list *ap)
-{
-	t_args	args;
-
-	initialize_args(&args);
-	while (*itr == '0')
-	{
-		args->flag = ZERO;
-		itr++;
-		
-	}
-	while (*itr == '-' || *itr == '0')
-	{
-		args.flag = DASH;
-		itr++;
-	}
-	put_width(itr, &args, ap);
+	if (ft_strchr(CONV, *itr))
+		args->c = *itr++;
+	return (itr);
 }
 
 /*
@@ -148,7 +187,7 @@ int		read_percentage(char *itr, size_t *i, va_list *ap)
 
 int			ft_printf(const char *format, ...)
 {
-	char *itr;
+	char	*itr;
 	int		res;
 	t_args	args;
 	va_list	ap;
@@ -156,23 +195,19 @@ int			ft_printf(const char *format, ...)
 	itr = (char *)format;
 	if (!itr)
 		return (0);
-	i = 0;
 	res = 0;
 	va_start(ap, format);
 	while (*itr)
 	{
 		if (*itr == '%' && *++itr != '%')
 		{
-			res = read_percentage(itr, &ap);
-			if (res == -1)
-				break ;
+			itr = read_args(&args, itr);
+			res += ft_put_conv(&args, &ap);
 			continue ;
 		}
 		res += int_putchar(*itr);
 		itr++;
 	}
 	va_end(ap);
-	if (res == -1)
-		return (-1);
 	return (res);
 }
