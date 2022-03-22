@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/21 00:14:45 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/22 13:41:38 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@
 # include <stdarg.h>
 # include "libft.h"
 
-/*# define CONV "dxsc"*/
-
+# define CONV "cspdiuxX%" 
 # define INIT -1
 # define INVALID -2
 # define DOT_ONLY -3
@@ -26,7 +25,7 @@
 enum e_flag
 {
 	NONE,
-	DASH,
+	MINUS,
 	ZERO,
 	FLAG_NUM
 };
@@ -52,7 +51,7 @@ typedef struct s_args{
 	int		c;
 	int		args_len;
 	int		zero;
-	int		blank;
+	int		space;
 	char	*prefix;
 	char	*basestr;
 	int		base;
