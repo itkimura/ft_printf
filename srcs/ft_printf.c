@@ -6,96 +6,44 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/22 23:51:45 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/27 20:34:28 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void	test_print_args(t_args *args)
+void	initialize_format(t_format *f)
 {
-	printf("\nargs->flag = %d\n", args->flag);
-	printf("args->width = %d\n", args->width);
-	printf("args->c = %d\n", args->c);
-	printf("args->precision = %d\n", args->precision);
-	printf("args->args_len = %d\n", args->args_len);
-	printf("args->zero = %d\n", args->zero);
-	printf("args->space = %d\n", args->space);
-	printf("args->base = %d\n", args->base);
-	printf("args->res = %d\n\n", args->res);
+	f->flag = NONE;
+	f->width = INIT;
+	f->type = INIT;
+	f->precision = INIT;
+	f->args_len = 0;
+	f->plus = 0;
+	f->zero = 0;
+	f->space = 0;
+	f->sharp = 0;
+	f->base = 0;
+	f->res = 0;
+	f->prefix = "";
+	f->length[0] = '\0';
+	f->basestr = "0123456789ABCDEF";
 }
 
-void	initialize_args(t_args *args)
-{
-	args->flag = NONE;
-	args->width = INIT;
-	args->c = INIT;
-	args->precision = INIT;
-	args->args_len = 0;
-	args->zero = 0;
-	args->space = 0;
-	args->base = 0;
-	args->res = 0;
-	args->prefix = "";
-}
-
-int	int_putchar(char c)
-{
-	return (write(1, &c, 1));
-}
-
-int	int_putstr(char *str)
-{
-	int	res;
-
-	if (!str)
-		return (0);
-	res = 0;
-	while (*str)
-	{
-		res += int_putchar(*str);
-		str++;
-	}
-	return (res);
-}
-
-int	int_putstr_len(char *str, int len)
-{
-	int	res;
-
-	if (!str)
-		return (0);
-	res = 0;
-	while (*str && len)
-	{
-		res += int_putchar(*str);
-		str++;
-		len--;
-	}
-	return (res);
-}
-
-int	get_digits(int nb)
+int	get_digits(unsigned long long nb, int base)
 {
 	int	digits;
 
 	digits = 0;
-	if (nb == -214748364)
-		return (11);
-	if (nb < 0)
-	{
-		digits++;
-		nb *= -1;
-	}
 	while (nb)
 	{
 		digits++;
-		nb /= 10;
+		nb /= base;
 	}
 	return (digits);
 }
 
-int	is_specifier(char **itr)
+int	is_type(char **itr)
 {
 	int		i;
 	char	c;
@@ -103,206 +51,67 @@ int	is_specifier(char **itr)
 	i = 0;
 	c = **itr;
 	(*itr)++;
-	while (i < CHAR_NUM)
+	while (TYPE[i])
 	{
-		if (CONV[i] == c)
+		if (TYPE[i] == c)
 			return (i);
 		i++;
 	}
 	return (-1);
 }
 
-void	put_width(char **itr, t_args *args, va_list *ap)
+void	print_format(t_format *f, va_list *ap)
 {
-	int	nb;
+	void	(*p_type[TYPE_NUM])(t_format *, va_list *,
+			void (*p_flag[])(t_format *, char));
+	void	(*p_flag[FLAG_NUM])(t_format *, char);
 
-	nb = 0;
-	if (**itr == '*')
+	p_type[TYPE_C] = print_c;
+	p_type[TYPE_S] = print_s;
+	p_type[TYPE_P] = print_nbr;
+	p_type[TYPE_D] = print_nbr;
+	p_type[TYPE_O] = print_nbr;
+	p_type[TYPE_I] = print_nbr;
+	p_type[TYPE_U] = print_nbr;
+	p_type[TYPE_LX] = print_nbr;
+	p_type[TYPE_SX] = print_nbr;
+	p_type[TYPE_PER] = print_c;
+	p_flag[NONE] = flag_none;
+	p_flag[MINUS] = flag_minus;
+	p_flag[ZERO] = flag_zero;
+	p_type[f->type](f, ap, p_flag);
+}
+
+int	read_percentage(t_format *f, char **itr, va_list *ap)
+{
+	char **start;
+	start = itr;
+	initialize_format(f);
+	while (**itr == '0' || **itr == '-' || **itr == '+' ||
+			**itr == '#' || **itr == ' ')
 	{
-		nb = va_arg(*ap, int);
-		if (nb < 0)
-		{
-			nb *= -1;
-			args->flag = MINUS;
-		}
-		args->width = nb;
+		if (**itr == '0' && f->flag != MINUS)
+			f->flag = ZERO;
+		if (**itr == '-')
+			f->flag = MINUS;
+		if (**itr == '+')
+			f->plus = 1;
+		if (**itr == '#')
+			f->sharp = 1;
 		(*itr)++;
 	}
-	else if (**itr >= '0' && **itr <= '9')
-	{
-		while (**itr >= '0' && **itr <= '9')
-		{
-			nb = nb * 10 + (**itr - '0');
-			(*itr)++;
-		}
-		args->width = nb;
-	}
-}
-
-void	put_precision(char **itr, t_args *args, va_list *ap)
-{
-	int	nb;
-
-	nb = 0;
-	(*itr)++;
-	if (**itr == '*')
-	{
-		nb = va_arg(*ap, int);
-		if (nb < 0)
-			nb = INVALID;
-		(*itr)++;
-		args->precision = nb;
-	}
-	else if (**itr >= '0' && **itr <= '9')
-	{
-		while (**itr >= '0' && **itr <= '9')
-		{
-			nb = nb * 10 + (**itr - '0');
-			(*itr)++;
-		}
-		args->precision = nb;
-	}
-	else
-		args->precision = DOT_ONLY;
-}
-
-void	flag_none(t_args *args, char c)
-{
-	while (args->space)
-	{
-		args->res += int_putchar(' ');
-		args->space--;
-	}
-	while (*(args->prefix))
-	{
-		args->res += int_putchar(*args->prefix);
-		args->prefix++;
-	}
-	while (args->zero)
-	{
-		args->res += int_putchar('0');
-		args->zero--;
-	}
-	if (args->args_len)
-	{
-		args->res += int_putchar(c);
-		args->args_len--;
-	}
-}
-
-void	flag_zero(t_args *args, char c)
-{
-	while (*(args->prefix))
-	{
-		args->res += int_putchar(*args->prefix);
-		args->prefix++;
-	}
-	while (args->space)
-	{
-		args->res += int_putchar('0');
-		args->space--;
-	}
-	if (args->args_len)
-	{
-		args->res += int_putchar(c);
-		args->args_len--;
-	}
-}
-
-void	flag_minus(t_args *args, char c)
-{
-	while (*(args->prefix))
-	{
-		args->res += int_putchar(*args->prefix);
-		args->prefix++;
-	}
-	while (args->zero)
-	{
-		args->res += int_putchar('0');
-		args->zero--;
-	}
-	if (args->args_len)
-	{
-		args->res += int_putchar(c);
-		args->args_len--;
-	}
-	while (args->space && !args->args_len)
-	{
-		args->res += int_putchar(' ');
-		args->space--;
-	}
-}
-
-void	print_c(t_args *args, va_list *ap, void (*print_flag[])(t_args *, char))
-{
-	unsigned char	c;
-
-	c = (unsigned char)va_arg(*ap, int);
-	args->args_len = 1;
-	if (args->args_len < args->width)
-		args->space = args->width - args->args_len;
-	print_flag[args->flag](args, c);
-}
-
-void	print_s(t_args *args, va_list *ap, void (*print_flag[])(t_args *, char))
-{
-	char	*s;
-
-	s = (char *)va_arg(*ap, char *);
-	if (s == 0)
-		s = "(null)";
-	test_print_args(args);
-	if (args->precision == DOT_ONLY)
-		args->precision = 0;
-	args->args_len = ft_strlen(s);
-	if (args->args_len < args->width)
-		args->space = args->width - args->args_len;
-	if (args->args_len == 0)
-		print_flag[args->flag](args, 0);
-	while (args->args_len)
-	{
-		print_flag[args->flag](args, *s);
-		s++;
-	}
-
-}
-
-void	put_arg(t_args *args, va_list *ap)
-{
-	void	(*print_args[CHAR_NUM])(t_args *, va_list *, void (*print_flag[])(t_args *, char));
-	void	(*print_flag[FLAG_NUM])(t_args *, char);
-
-	print_args[CHAR_C] = print_c;
-	print_args[CHAR_S] = print_s;
-	print_flag[NONE] = flag_none;
-	print_flag[MINUS] = flag_minus;
-	print_flag[ZERO] = flag_zero;
-	print_args[args->c](args, ap, print_flag); 
-}
-
-int	read_percentage(char **itr, va_list *ap)
-{
-	t_args	args;
-
-	initialize_args(&args);
-	while (**itr == '0')
-	{
-		args.flag = ZERO;
-		(*itr)++;
-	}
-	while (**itr == '-' || **itr == '0')
-	{
-		args.flag = MINUS;
-		(*itr)++;
-	}
-	put_width(itr, &args, ap);
+	put_width(itr, f, ap);
 	if (**itr == '.')
-		put_precision(itr, &args, ap);
-	args.c = is_specifier(itr);
-	if (args.c == -1)
-		return (-1);
-	put_arg(&args, ap);
-	return (args.res);
+		put_precision(itr, f, ap);
+	put_length(itr, f);
+	f->type = is_type(itr);
+	if (f->type == -1)
+	{
+		(*itr)--;
+		return (0);
+	}
+	print_format(f, ap);
+	return (f->res);
 }
 
 /*
@@ -315,9 +124,10 @@ int	read_percentage(char **itr, va_list *ap)
 
 int	ft_printf(const char *format, ...)
 {
-	char	*itr;
-	int		res;
-	va_list	ap;
+	char		*itr;
+	int			res;
+	va_list		ap;
+	t_format	f;
 
 	itr = (char *)format;
 	if (!itr)
@@ -328,16 +138,14 @@ int	ft_printf(const char *format, ...)
 	{
 		if (*itr == '%' && *++itr != '%')
 		{
-			res += read_percentage(&itr, &ap);
-			if (res == -1)
-				break ;
+			res += read_percentage(&f, &itr, &ap);
 			continue ;
 		}
 		res += int_putchar(*itr);
 		itr++;
 	}
 	va_end(ap);
-	if (res == -1)
-		return (-1);
+//	if (res == -1)
+//		return (0);
 	return (res);
 }
