@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/27 20:28:36 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 01:00:38 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,7 @@ void	nb_recursive(unsigned long long nb, t_format *f,
 		nb_recursive(nb % f->base, f, p_flag);
 	}
 	else
-	{
 		p_flag[f->flag](f, f->basestr[nb]);
-		
-	}
 }
 
 void	nbr_data(t_format *f, unsigned long long nb)
@@ -84,21 +81,26 @@ void	nbr_data(t_format *f, unsigned long long nb)
 	else
 		f->args_len = get_digits(nb, f->base);
 	if (f->args_len < f->precision)
-	{
 		f->zero = f->precision - f->args_len;
-		if (f->flag == ZERO)
-			f->space = f->precision - f->args_len;
-	}
 	if (f->args_len + f->zero < f->width)
 	{
 		f->space = f->width - f->args_len - f->zero;
-		if (f->plus || ft_strcmp(f->prefix, "-") == 0 ||
-			(f->sharp == 1 && f->type == TYPE_O))
+		if (f->extra_flag[PLUS] || ft_strcmp(f->prefix, "-") == 0 ||
+			(f->extra_flag[SHARP] == 1 && f->type == TYPE_O))
 			f->space--;
-		if (f->sharp == 1 && (f->type == TYPE_SX || f->type == TYPE_LX ||
+		if (f->extra_flag[SHARP] == 1 && (f->type == TYPE_SX || f->type == TYPE_LX ||
 			f->type == TYPE_P))
 			f->space -= 2;
+		if (f->flag == ZERO && f->zero == 0)
+		{
+			f->zero = f->space;
+			if (f->precision == -1)
+				f->space = 0;
+		}
 	}
+	if (f->type == TYPE_D && f->extra_flag[SPACE] && f->space == 0 &&
+		ft_strcmp(f->prefix, "-") && ft_strcmp(f->prefix, "+"))
+		f->space++;
 }
 
 void	set_base(t_format *f, unsigned long long nb)
@@ -111,12 +113,47 @@ void	set_base(t_format *f, unsigned long long nb)
 		f->base = 16;
 	if (f->type == TYPE_SX || f->type == TYPE_P)
 		f->basestr = "0123456789abcdef";
-	if ((f->sharp == 1 && f->type == TYPE_SX && nb != 0) || f->type == TYPE_P)
+	if ((f->extra_flag[SHARP] == 1 && f->type == TYPE_SX && nb != 0) || f->type == TYPE_P)
 		f->prefix = "0x";
-	if (f->sharp == 1 && f->type == TYPE_LX)
+	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_LX)
 			f->prefix = "0X";
-	if (f->sharp == 1 && f->type == TYPE_O)
+	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_O)
 			f->prefix = "0";
+}
+
+void	print_di(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+{
+	unsigned long long	nb;
+	long			tmp_nb;
+	signed char		tmp_h;
+
+	nb = 0;
+	tmp_nb = 0;
+	tmp_h = 0;
+	tmp_nb = (int)va_arg(*ap, int);
+	if ((f->length[h] || f->length[hh]) && tmp_nb < 32767)
+	{
+		tmp_h = (signed char)tmp_nb;
+		if (tmp_h > 0 && f->length[h])
+			f->prefix = "-";
+		nb = tmp_h;
+	}
+	else if (tmp_nb < 0)
+	{
+		f->prefix = "-";
+		nb = tmp_nb * -1;
+	}
+	else
+		nb = tmp_nb;
+	if (f->length[h] && tmp_nb > 32767)
+		f->prefix = "-";
+	if (f->extra_flag[PLUS] && nb >= 0 && tmp_nb >= 0)
+		f->prefix = "+";
+	set_base(f, nb);
+	nbr_data(f, nb);
+//	test_print_format(f);
+//	(void)p_flag;
+	nb_recursive(nb, f, p_flag);
 }
 
 void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
@@ -125,28 +162,18 @@ void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 	long				tmp_nb = 0;
 
 	nb = 0;
-	if (f->type == TYPE_D || f->type == TYPE_I)
-	{
-		tmp_nb = (int)va_arg(*ap, int);
-		if (tmp_nb < 0)
-		{
-			f->prefix = "-";
-			nb = tmp_nb * -1;
-		}
-		else
-			nb = tmp_nb;
-	}
 	if (f->type == TYPE_SX || f->type == TYPE_LX || f->type == TYPE_U || f->type == TYPE_O)
 	{
 		tmp_nb = (long)va_arg(*ap, long);
-		if (tmp_nb < 0 || f->length[0] == '\0' || f->length[0] == 'h')
+		if (tmp_nb < 0 || f->length[h] || (tmp_nb >= 4294967296 && f->length[l] == 0 && f->length[ll] == 0))
 			nb = (unsigned int)tmp_nb;
 		else
 			nb = tmp_nb;
 	}
 	if (f->type == TYPE_P)
 		nb = (unsigned long long)va_arg(*ap, unsigned long long);
-	if (f->plus && nb >= 0 && tmp_nb >= 0 && f->type != TYPE_P)
+	if (f->extra_flag[PLUS] && nb >= 0 && tmp_nb >= 0 &&
+		f->type != TYPE_P && f->type != TYPE_U)
 		f->prefix = "+";
 	set_base(f, nb);
 	nbr_data(f, nb);

@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/27 20:06:28 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/27 22:53:19 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include "libft.h"
 
 # define TYPE "cspdiouxXf%" 
-# define LEN "hlLjzt" 
+# define LEN "0hlLjzt" 
 # define INIT -1
 # define INVALID -2
 # define DOT_ONLY -3
@@ -29,6 +29,28 @@ enum e_flag
 	MINUS,
 	ZERO,
 	FLAG_NUM
+};
+
+enum e_extra
+{
+	PLUS,
+	SHARP,
+	SPACE,
+	EXTRA_NUM
+};
+
+enum e_length
+{
+	no_len,
+	h,
+	l,
+	L,
+	j,
+	z,
+	t,
+	hh,
+	ll,
+	LEN_NUM
 };
 
 enum e_type
@@ -47,19 +69,19 @@ enum e_type
 	TYPE_NUM
 };
 
+
 typedef struct s_format{
 	int		flag;
 	int		width;
 	int		precision;
 	int		type;
 	int		args_len;
-	int		plus;
+	int		extra_flag[EXTRA_NUM];
 	int		zero;
 	int		space;
-	int		sharp;
 	char	*prefix;
 	char	*basestr;
-	char	length[3];
+	int		length[LEN_NUM];
 	int		base;
 	int		res;
 }				t_format;
@@ -86,12 +108,14 @@ void	flag_minus(t_format *f, char c);
 void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	print_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	nbr_data(t_format *f, unsigned long long nb);
+void	print_di(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*width_and_precision.c*/
 void	put_width(char **itr, t_format *f, va_list *ap);
 void	put_precision(char **itr, t_format *f, va_list *ap);
 void	put_length(char **itr, t_format *f);
 /*ft_printf.c*/
+int		is_specifier(char **itr, char *str);
 int		get_digits(unsigned long long nb, int base);
 int		ft_printf(const char *format, ...);
 /*test*/

@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:43:45 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/27 13:16:28 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/27 22:53:38 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,20 +70,22 @@ void	put_precision(char **itr, t_format *f, va_list *ap)
 
 void	put_length(char **itr, t_format *f)
 {
-	if (ft_strstr(*itr, "hh") != 0)
+	int	i;
+
+	i = 0;
+	if (ft_strstr(*itr, "hh"))
 	{
-		ft_strcpy(f->length, "hh");
+		f->length[hh] = 1;
 		(*itr) += 2;
 	}
 	else if (ft_strstr(*itr, "ll"))
 	{
-		ft_strcpy(f->length, "ll");
+		f->length[ll] = 1;
 		(*itr) += 2;
 	}
-	else if (ft_strchr(LEN, **itr) != 0)
+	else if ((i = is_specifier(itr, LEN)) > 0)
 	{
-		ft_strncpy(f->length, *itr, 1);
-		f->length[1] = '\0';
+		f->length[i] = 1;
 		(*itr)++;
 	}
 }
