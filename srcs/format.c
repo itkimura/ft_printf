@@ -1,16 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   width_and_precision.c                              :+:      :+:    :+:   */
+/*   format.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:43:45 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 16:49:22 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 20:50:57 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+
+int	is_specifier(char **itr, char *str)
+{
+	int		i;
+	char	c;
+
+	i = 0;
+	c = **itr;
+	while (str[i])
+	{
+		if (str[i] == c)
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
+void	print_format(t_format *f, va_list *ap)
+{
+	void	(*p_type[TYPE_NUM])(t_format *, va_list *,
+			void (*p_flag[])(t_format *, char));
+	void	(*p_flag[FLAG_NUM])(t_format *, char);
+
+	p_type[TYPE_C] = print_c;
+	p_type[TYPE_S] = print_s;
+	p_type[TYPE_P] = print_nbr;
+	p_type[TYPE_D] = print_nbr;
+	p_type[TYPE_O] = print_nbr;
+	p_type[TYPE_I] = print_nbr;
+	p_type[TYPE_U] = print_nbr;
+	p_type[TYPE_SX] = print_nbr;
+	p_type[TYPE_LX] = print_nbr;
+	p_type[TYPE_F] = print_f;
+	p_type[TYPE_PER] = print_c;
+	p_flag[NONE] = flag_none;
+	p_flag[MINUS] = flag_minus;
+	p_flag[ZERO] = flag_none;
+	p_type[f->type](f, ap, p_flag);
+}
 
 void	put_width(char **itr, t_format *f, va_list *ap)
 {

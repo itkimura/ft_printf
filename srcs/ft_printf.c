@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 17:49:27 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 23:18:08 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	initialize_int_array(int *array, int nb)
 		i++;
 	}
 }
+
 void	initialize_format(t_format *f)
 {
 	f->flag = NONE;
@@ -36,6 +37,8 @@ void	initialize_format(t_format *f)
 	f->res = 0;
 	initialize_int_array(f->extra_flag, EXTRA_NUM);
 	initialize_int_array(f->length, LEN_NUM);
+	f->sign = 0;
+	f->sharp = 0;
 	f->prefix = "";
 	f->basestr = "0123456789ABCDEF";
 }
@@ -53,59 +56,20 @@ int	get_digits(unsigned long long nb, int base)
 	return (digits);
 }
 
-int	is_specifier(char **itr, char *str)
-{
-	int		i;
-	char	c;
-
-	i = 0;
-	c = **itr;
-	while (str[i])
-	{
-		if (str[i] == c)
-			return (i);
-		i++;
-	}
-	return (-1);
-}
-
-void	print_format(t_format *f, va_list *ap)
-{
-	void	(*p_type[TYPE_NUM])(t_format *, va_list *,
-			void (*p_flag[])(t_format *, char));
-	void	(*p_flag[FLAG_NUM])(t_format *, char);
-
-	p_type[TYPE_C] = print_c;
-	p_type[TYPE_S] = print_s;
-	p_type[TYPE_P] = print_nbr;
-	p_type[TYPE_D] = print_nbr;
-	p_type[TYPE_O] = print_nbr;
-	p_type[TYPE_I] = print_nbr;
-	p_type[TYPE_U] = print_nbr;
-	p_type[TYPE_SX] = print_nbr;
-	p_type[TYPE_LX] = print_nbr;
-	p_type[TYPE_F] = print_f;
-	p_type[TYPE_PER] = print_c;
-	p_flag[NONE] = flag_none;
-	p_flag[MINUS] = flag_minus;
-	p_flag[ZERO] = flag_none;
-	p_type[f->type](f, ap, p_flag);
-}
-
 void	put_flag(t_format *f, char **itr)
 {
-	while (**itr == '0' || **itr == '-' || **itr == '+' ||
-			**itr == '#' || **itr == ' ')
+	while (**itr == '0' || **itr == '-' || **itr == '+'
+		|| **itr == '#' || **itr == ' ')
 	{
 		if (**itr == '0' && f->flag != MINUS)
 			f->flag = ZERO;
 		if (**itr == '-')
 			f->flag = MINUS;
 		if (**itr == '+')
-			f->extra_flag[PLUS] = 1;
+			f->sign = 1;
 		if (**itr == '#')
-			f->extra_flag[SHARP] = 1;
-		if (**itr == ' ')
+			f->sharp = 1;
+		if (**itr == ' ' && f->sign == 0)
 			f->extra_flag[SPACE] = 1;
 		(*itr)++;
 	}
@@ -113,7 +77,8 @@ void	put_flag(t_format *f, char **itr)
 
 int	read_percentage(t_format *f, char **itr, va_list *ap)
 {
-	char **start;
+	char	**start;
+
 	start = itr;
 	initialize_format(f);
 	put_flag(f, itr);
@@ -161,7 +126,5 @@ int	ft_printf(const char *format, ...)
 		itr++;
 	}
 	va_end(ap);
-//	if (res == -1)
-//		return (0);
 	return (res);
 }

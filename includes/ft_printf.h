@@ -6,14 +6,13 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 17:53:47 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 23:50:29 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
 
-# include <stdio.h>
 # include <stdarg.h>
 # include "libft.h"
 
@@ -33,7 +32,6 @@ enum e_flag
 
 enum e_extra
 {
-	PLUS,
 	SHARP,
 	SPACE,
 	EXTRA_NUM
@@ -69,21 +67,22 @@ enum e_type
 	TYPE_NUM
 };
 
-
 typedef struct s_format{
 	int		flag;
 	int		width;
-	int		precision;
+	int		length[LEN_NUM];
 	int		type;
+	int		precision;
 	int		args_len;
 	int		extra_flag[EXTRA_NUM];
 	int		zero;
 	int		space;
 	char	*prefix;
 	char	*basestr;
-	int		length[LEN_NUM];
 	int		base;
 	int		res;
+	int		sign;
+	int		sharp;
 }				t_format;
 
 /*
@@ -102,22 +101,26 @@ typedef struct s_args{
 /*print.c*/
 int		int_putchar(char c);
 void	flag_none(t_format *f, char c);
-void	flag_zero(t_format *f, char c);
 void	flag_minus(t_format *f, char c);
-/*type.c*/
-void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
-void	print_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+/*nbr.c*/
 void	nbr_data(t_format *f, unsigned long long nb);
 void	print_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
-/*width_and_precision.c*/
+/*str.c*/
+void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+void	print_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+/*format.c*/
+int		is_specifier(char **itr, char *str);
+void	print_format(t_format *f, va_list *ap);
 void	put_width(char **itr, t_format *f, va_list *ap);
 void	put_precision(char **itr, t_format *f, va_list *ap);
 void	put_length(char **itr, t_format *f);
 /*ft_printf.c*/
+void	set_base(t_format *f, unsigned long long nb);
 int		is_specifier(char **itr, char *str);
 int		get_digits(unsigned long long nb, int base);
 int		ft_printf(const char *format, ...);
-/*test*/
+/*test.c*/
+# include <stdio.h>
 void	test_print_format(t_format *f);
 #endif
