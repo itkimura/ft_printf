@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 10:59:14 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 12:46:55 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,14 +88,13 @@ void	nbr_data(t_format *f, unsigned long long nb)
 		if (f->extra_flag[PLUS] || ft_strcmp(f->prefix, "-") == 0 ||
 			(f->extra_flag[SHARP] == 1 && f->type == TYPE_O))
 			f->space--;
-		if (f->extra_flag[SHARP] == 1 && (f->type == TYPE_SX || f->type == TYPE_LX ||
-			f->type == TYPE_P))
+		if ((f->extra_flag[SHARP] == 1 && (f->type == TYPE_SX || f->type == TYPE_LX ||
+			f->type == TYPE_P)) || (f->type == TYPE_P && f->space))
 			f->space -= 2;
 		if (f->flag == ZERO && f->zero == 0)
 		{
-			f->zero = f->space;
-			if (f->precision == -1)
-				f->space = 0;
+			f->zero = f->space - f->extra_flag[SPACE];
+			f->space = 0;
 		}
 	}
 	if (f->type == TYPE_D && f->extra_flag[SPACE] && f->space == 0 &&
@@ -109,29 +108,32 @@ long long get_signed(t_format *f, va_list *ap)
 		return (va_arg(*ap, long long));
 	if (f->length[l])
 		return (va_arg(*ap, long));
-	else if (f->type == TYPE_D || f->type == TYPE_I)
+	if (f->length[h])
+		return ((short)va_arg(*ap, int));
+	if (f->length[hh])
+		return ((char)va_arg(*ap, int));
+	else
 		return (va_arg(*ap, int));
 	return (0);
 }
-/*
-static unsigned long long get_unsigned(va_list ap, INTEGER type)
+
+unsigned long long get_unsigned(t_format *f, va_list *ap)
 {
-    INTEGER t; t = type;
-    if(t >=  LL) t = LL;
-    if(t <=   C) t = C;
-
-        switch(t)
-        {
-          case LL: return va_arg(ap, unsigned long long);         break;
-          case  L: return va_arg(ap, unsigned long);              break;
-          case  I: return va_arg(ap, unsigned int);               break;
-          case  S: return (unsigned short) va_arg(ap, unsigned ); break;
-          case  C: return (unsigned char) va_arg(ap, unsigned );  break;
-        }
-
-        return (unsigned char) va_arg(ap, unsigned );
+	if (f->length[ll])
+		return (va_arg(*ap, unsigned long long));
+	else if (f->length[l])
+		return (va_arg(*ap, unsigned long));
+	else if (f->length[h])
+		return ((unsigned short)va_arg(*ap, int));
+	else if (f->length[hh])
+		return ((unsigned char)va_arg(*ap, int));
+	else if (f->type == TYPE_P)
+		return ((unsigned long) va_arg(*ap, unsigned long));
+	else
+		return ((unsigned) va_arg(*ap, unsigned int));
+	return (0);
 }
-*/
+
 void	set_base(t_format *f, unsigned long long nb)
 {
 	if (f->type == TYPE_O)
@@ -150,52 +152,27 @@ void	set_base(t_format *f, unsigned long long nb)
 			f->prefix = "0";
 }
 
-void	print_di(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
-{
-	unsigned long long	nb;
-	long long			tmp_nb;
-	signed char		tmp_h;
-
-	nb = 0;
-	tmp_nb = 0;
-	tmp_h = 0;
-	tmp_nb = get_signed(f, ap);
-	if (tmp_nb < 0)
-	{
-		f->prefix = "-";
-		nb = tmp_nb * -1;
-	}
-	else
-		nb = tmp_nb;
-	if (f->length[h] && tmp_nb > 32767)
-		f->prefix = "-";
-	if (f->extra_flag[PLUS] && nb >= 0 && tmp_nb >= 0)
-		f->prefix = "+";
-	set_base(f, nb);
-	nbr_data(f, nb);
-//	test_print_format(f);
-//	(void)p_flag;
-	nb_recursive(nb, f, p_flag);
-}
-
 void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
 	unsigned long long	nb;
-	long				tmp_nb = 0;
+	long long			tmp_nb;
 
 	nb = 0;
-	if (f->type == TYPE_SX || f->type == TYPE_LX || f->type == TYPE_U || f->type == TYPE_O)
+	tmp_nb = 0;
+	if (f->type == TYPE_D || f->type == TYPE_I)
 	{
-		tmp_nb = (long)va_arg(*ap, long);
-		if (tmp_nb < 0 || f->length[h] || (tmp_nb >= 4294967296 && f->length[l] == 0 && f->length[ll] == 0))
-			nb = (unsigned int)tmp_nb;
+		tmp_nb = get_signed(f, ap);
+		if (tmp_nb < 0)
+		{
+			f->prefix = "-";
+			nb = tmp_nb * -1;
+		}
 		else
-			nb = tmp_nb;
+		nb = tmp_nb;
 	}
-	if (f->type == TYPE_P)
-		nb = (unsigned long long)va_arg(*ap, unsigned long long);
-	if (f->extra_flag[PLUS] && nb >= 0 && tmp_nb >= 0 &&
-		f->type != TYPE_P && f->type != TYPE_U)
+	else
+		nb = get_unsigned(f, ap);;
+	if (f->extra_flag[PLUS] && nb >= 0 && tmp_nb >= 0 && f->type != TYPE_P && f->type != TYPE_U)
 		f->prefix = "+";
 	set_base(f, nb);
 	nbr_data(f, nb);

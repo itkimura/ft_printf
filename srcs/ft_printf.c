@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/27 23:40:44 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 12:31:57 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,9 @@ void	print_format(t_format *f, va_list *ap)
 	p_type[TYPE_C] = print_c;
 	p_type[TYPE_S] = print_s;
 	p_type[TYPE_P] = print_nbr;
-	p_type[TYPE_D] = print_di;
+	p_type[TYPE_D] = print_nbr;
 	p_type[TYPE_O] = print_nbr;
-	p_type[TYPE_I] = print_di;
+	p_type[TYPE_I] = print_nbr;
 	p_type[TYPE_U] = print_nbr;
 	p_type[TYPE_LX] = print_nbr;
 	p_type[TYPE_SX] = print_nbr;
@@ -121,11 +121,8 @@ int	read_percentage(t_format *f, char **itr, va_list *ap)
 		put_precision(itr, f, ap);
 	put_length(itr, f);
 	f->type = is_specifier(itr, TYPE);
-	if (f->flag == -1)
-	{
-		(*itr)--;
+	if (f->type == -1)
 		return (0);
-	}
 	else
 		(*itr)++;
 	print_format(f, ap);
