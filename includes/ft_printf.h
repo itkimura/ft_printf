@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/27 22:53:19 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 17:53:47 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ enum e_type
 	TYPE_U,
 	TYPE_SX,
 	TYPE_LX,
-	TYPE_f,
+	TYPE_F,
 	TYPE_PER,
 	TYPE_NUM
 };
@@ -108,7 +108,7 @@ void	flag_minus(t_format *f, char c);
 void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	print_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	nbr_data(t_format *f, unsigned long long nb);
-void	print_di(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+void	print_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*width_and_precision.c*/
 void	put_width(char **itr, t_format *f, va_list *ap);

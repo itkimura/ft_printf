@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:43:45 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 12:46:57 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 16:49:22 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ void	put_width(char **itr, t_format *f, va_list *ap)
 {
 	int	nb;
 
-	nb = 0;
 	while (ft_isspace(**itr))
 		(*itr)++;
 	if (**itr == '*')
@@ -32,6 +31,7 @@ void	put_width(char **itr, t_format *f, va_list *ap)
 	}
 	if (**itr >= '0' && **itr <= '9')
 	{
+		nb = 0;
 		while (**itr >= '0' && **itr <= '9')
 		{
 			nb = nb * 10 + (**itr - '0');
@@ -55,20 +55,17 @@ void	put_precision(char **itr, t_format *f, va_list *ap)
 		(*itr)++;
 		f->precision = nb;
 	}
-	else
+	else if (**itr >= '0' && **itr <= '9')
 	{
-		if (**itr >= '0' && **itr <= '9')
+		while (**itr >= '0' && **itr <= '9')
 		{
-			while (**itr >= '0' && **itr <= '9')
-			{
-				nb = nb * 10 + (**itr - '0');
-				(*itr)++;
-			}
-			f->precision = nb;
+			nb = nb * 10 + (**itr - '0');
+			(*itr)++;
 		}
-		else
-			f->precision = DOT_ONLY;
+		f->precision = nb;
 	}
+	else
+		f->precision = DOT_ONLY;
 }
 
 void	put_length(char **itr, t_format *f)
@@ -76,19 +73,23 @@ void	put_length(char **itr, t_format *f)
 	int	i;
 
 	i = 0;
-	if (ft_strstr(*itr, "hh"))
+	if (ft_strnstr(*itr, "hh", 2))
 	{
 		f->length[hh] = 1;
 		(*itr) += 2;
 	}
-	else if (ft_strstr(*itr, "ll"))
+	else if (ft_strnstr(*itr, "ll", 2))
 	{
 		f->length[ll] = 1;
 		(*itr) += 2;
 	}
-	else if ((i = is_specifier(itr, LEN)) > 0)
+	else
 	{
-		f->length[i] = 1;
-		(*itr)++;
+		i = is_specifier(itr, LEN);
+		if (i > 0)
+		{
+			f->length[i] = 1;
+			(*itr)++;
+		}
 	}
 }

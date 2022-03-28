@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 12:31:57 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 17:49:27 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,9 @@ void	print_format(t_format *f, va_list *ap)
 	p_type[TYPE_O] = print_nbr;
 	p_type[TYPE_I] = print_nbr;
 	p_type[TYPE_U] = print_nbr;
-	p_type[TYPE_LX] = print_nbr;
 	p_type[TYPE_SX] = print_nbr;
+	p_type[TYPE_LX] = print_nbr;
+	p_type[TYPE_F] = print_f;
 	p_type[TYPE_PER] = print_c;
 	p_flag[NONE] = flag_none;
 	p_flag[MINUS] = flag_minus;

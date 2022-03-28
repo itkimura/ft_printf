@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 12:46:55 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 17:53:45 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void	nbr_data(t_format *f, unsigned long long nb)
 	{
 		f->space = f->width - f->args_len - f->zero;
 		if (f->extra_flag[PLUS] || ft_strcmp(f->prefix, "-") == 0 ||
-			(f->extra_flag[SHARP] == 1 && f->type == TYPE_O))
+			(f->extra_flag[SHARP] == 1 && f->type == TYPE_O && f->space))
 			f->space--;
 		if ((f->extra_flag[SHARP] == 1 && (f->type == TYPE_SX || f->type == TYPE_LX ||
 			f->type == TYPE_P)) || (f->type == TYPE_P && f->space))
@@ -97,9 +97,17 @@ void	nbr_data(t_format *f, unsigned long long nb)
 			f->space = 0;
 		}
 	}
-	if (f->type == TYPE_D && f->extra_flag[SPACE] && f->space == 0 &&
+	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_O)
+	{
+		if (f->zero)
+			f->zero--;
+		if (nb == 0)
+			f->args_len++;
+	}
+	if ((f->type == TYPE_D || f->type == TYPE_I) && f->extra_flag[SPACE] && f->space == 0 &&
 		ft_strcmp(f->prefix, "-") && ft_strcmp(f->prefix, "+"))
 		f->space++;
+//	test_print_format(f);
 }
 
 long long get_signed(t_format *f, va_list *ap)
@@ -138,7 +146,7 @@ void	set_base(t_format *f, unsigned long long nb)
 {
 	if (f->type == TYPE_O)
 		f->base = 8;
-	if (f->type == TYPE_D || f->type == TYPE_I || f->type == TYPE_U)
+	if (f->type == TYPE_D || f->type == TYPE_I || f->type == TYPE_U || f->type == TYPE_F)
 		f->base = 10;
 	if (f->type == TYPE_SX || f->type == TYPE_LX || f->type == TYPE_P)
 		f->base = 16;
@@ -146,10 +154,30 @@ void	set_base(t_format *f, unsigned long long nb)
 		f->basestr = "0123456789abcdef";
 	if ((f->extra_flag[SHARP] == 1 && f->type == TYPE_SX && nb != 0) || f->type == TYPE_P)
 		f->prefix = "0x";
-	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_LX)
+	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_LX  && nb != 0)
 			f->prefix = "0X";
-	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_O)
+	if (f->extra_flag[SHARP] == 1 && f->type == TYPE_O && nb != 0)
 			f->prefix = "0";
+}
+
+void	print_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+{
+	long double nb;
+
+	nb = 0;
+	if (f->length[L])
+		nb = va_arg(*ap, long double);
+	else
+		nb = va_arg(*ap, double);
+	(void)p_flag;
+	(void)f;
+	if (f->extra_flag[PLUS] && nb >= 0)
+		f->prefix = "+";
+	set_base(f, nb);
+	nbr_data(f, nb);
+	printf("nb = %d\n", f_recursive(nb, f, f->args_len));
+//	test_print_format(f);
+//	(void)p_flag;
 }
 
 void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
