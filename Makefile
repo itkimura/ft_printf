@@ -6,14 +6,14 @@
 #    By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/09 14:48:02 by itkimura          #+#    #+#              #
-#    Updated: 2022/03/26 21:48:12 by itkimura         ###   ########.fr        #
+#    Updated: 2022/03/28 10:47:29 by itkimura         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libftprintf.a
 FLAGS = -Wall -Werror -Wextra
 SRCS_DIR = ./srcs/
-SRC_FILES = ft_printf.c print.c type.c width_and_precision.c
+SRC_FILES = ft_printf.c print.c type.c print.c
 SRCS		= $(addprefix	$(SRCS_DIR), $(SRC_FILES))
 OBJS		= $(addprefix	$(OBJS_DIR), $(SRC_FILES:.c=.o))
 OBJS_DIR = ./objects/

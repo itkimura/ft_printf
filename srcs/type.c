@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 01:00:38 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/28 10:59:14 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,35 @@ void	nbr_data(t_format *f, unsigned long long nb)
 		f->space++;
 }
 
+long long get_signed(t_format *f, va_list *ap)
+{
+	if (f->length[ll])
+		return (va_arg(*ap, long long));
+	if (f->length[l])
+		return (va_arg(*ap, long));
+	else if (f->type == TYPE_D || f->type == TYPE_I)
+		return (va_arg(*ap, int));
+	return (0);
+}
+/*
+static unsigned long long get_unsigned(va_list ap, INTEGER type)
+{
+    INTEGER t; t = type;
+    if(t >=  LL) t = LL;
+    if(t <=   C) t = C;
+
+        switch(t)
+        {
+          case LL: return va_arg(ap, unsigned long long);         break;
+          case  L: return va_arg(ap, unsigned long);              break;
+          case  I: return va_arg(ap, unsigned int);               break;
+          case  S: return (unsigned short) va_arg(ap, unsigned ); break;
+          case  C: return (unsigned char) va_arg(ap, unsigned );  break;
+        }
+
+        return (unsigned char) va_arg(ap, unsigned );
+}
+*/
 void	set_base(t_format *f, unsigned long long nb)
 {
 	if (f->type == TYPE_O)
@@ -124,21 +153,14 @@ void	set_base(t_format *f, unsigned long long nb)
 void	print_di(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
 	unsigned long long	nb;
-	long			tmp_nb;
+	long long			tmp_nb;
 	signed char		tmp_h;
 
 	nb = 0;
 	tmp_nb = 0;
 	tmp_h = 0;
-	tmp_nb = (int)va_arg(*ap, int);
-	if ((f->length[h] || f->length[hh]) && tmp_nb < 32767)
-	{
-		tmp_h = (signed char)tmp_nb;
-		if (tmp_h > 0 && f->length[h])
-			f->prefix = "-";
-		nb = tmp_h;
-	}
-	else if (tmp_nb < 0)
+	tmp_nb = get_signed(f, ap);
+	if (tmp_nb < 0)
 	{
 		f->prefix = "-";
 		nb = tmp_nb * -1;
