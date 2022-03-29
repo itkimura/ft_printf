@@ -6,26 +6,16 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 23:18:08 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 18:30:07 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void	initialize_int_array(int *array, int nb)
+void	initialize_format(t_format *f)
 {
 	int	i;
 
-	i = 0;
-	while (i < nb)
-	{
-		array[i] = 0;
-		i++;
-	}
-}
-
-void	initialize_format(t_format *f)
-{
 	f->flag = NONE;
 	f->width = INIT;
 	f->type = INIT;
@@ -35,12 +25,14 @@ void	initialize_format(t_format *f)
 	f->space = 0;
 	f->base = 0;
 	f->res = 0;
-	initialize_int_array(f->extra_flag, EXTRA_NUM);
-	initialize_int_array(f->length, LEN_NUM);
+	f->space_flag = 0;
 	f->sign = 0;
 	f->sharp = 0;
 	f->prefix = "";
 	f->basestr = "0123456789ABCDEF";
+	i = 0;
+	while (i < LEN_NUM)
+		f->length[i++] = 0;
 }
 
 int	get_digits(unsigned long long nb, int base)
@@ -70,7 +62,7 @@ void	put_flag(t_format *f, char **itr)
 		if (**itr == '#')
 			f->sharp = 1;
 		if (**itr == ' ' && f->sign == 0)
-			f->extra_flag[SPACE] = 1;
+			f->space_flag = 1;
 		(*itr)++;
 	}
 }

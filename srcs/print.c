@@ -6,11 +6,33 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:27:29 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 23:50:12 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 17:48:20 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+
+void	set_sharp(t_format *f, unsigned long long nb)
+{
+	if ((f->type == TYPE_SX && nb != 0) || f->type == TYPE_P)
+	{
+		f->prefix = "0x";
+		f->sharp = 2;
+	}
+	else if (f->type == TYPE_LX && nb != 0)
+	{
+		f->prefix = "0X";
+		f->sharp = 2;
+	}
+	else if (f->type == TYPE_O)
+	{
+		if (nb != 0)
+			f->prefix = "0";
+		f->sharp = 1;
+	}
+	else
+		f->sharp = 0;
+}
 
 void	set_base(t_format *f, unsigned long long nb)
 {
@@ -23,18 +45,7 @@ void	set_base(t_format *f, unsigned long long nb)
 	if (f->type == TYPE_SX || f->type == TYPE_P)
 		f->basestr = "0123456789abcdef";
 	if (f->sharp || f->type == TYPE_P)
-	{
-		if ((f->type == TYPE_SX && nb != 0) || f->type == TYPE_P)
-			f->prefix = "0x";
-		if (f->type == TYPE_LX && nb != 0)
-			f->prefix = "0X";
-		f->sharp = 2;
-	}
-	if (f->sharp && f->type == TYPE_O && nb != 0)
-	{
-		f->prefix = "0";
-		f->sharp = 1;
-	}
+		set_sharp(f, nb);
 }
 
 int	int_putchar(char c)

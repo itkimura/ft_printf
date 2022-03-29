@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 23:51:44 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 18:37:48 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@ void	nb_recursive(unsigned long long nb, t_format *f,
 
 void	set_format(t_format *f, unsigned long long nb)
 {
-	if (f->precision == -1 && nb == 0)
+	if (f->type == TYPE_O && f->sharp && nb == 0)
+		f->args_len = 1;
+	else if (f->precision == -1 && nb == 0)
 		f->args_len = 1;
 	else
 		f->args_len = get_digits(nb, f->base);
@@ -35,26 +37,22 @@ void	set_format(t_format *f, unsigned long long nb)
 	if (f->args_len + f->zero < f->width)
 	{
 		f->space = f->width - f->args_len - f->zero - f->sign - f->sharp;
-		if (f->flag == ZERO && f->zero == 0)
+		if (f->flag == ZERO && f->zero == 0 && (f->precision == -1 || f->precision == INVALID))
 		{
-			f->zero = f->space - f->extra_flag[SPACE];
+			f->zero = f->space - f->space_flag;
 			f->space = 0;
 		}
 	}
 	if ((f->type == TYPE_D || f->type == TYPE_I)
-		&& (f->extra_flag[SPACE] && f->space == 0 && f->sign == 0))
+		&& (f->space_flag && f->space == 0 && f->sign == 0))
 		f->space++;
-	if (f->sharp && f->type == TYPE_O)
-	{
-		if (f->zero)
-			f->zero--;
-		if (nb == 0)
-			f->args_len++;
-	}
+	if (f->sharp && f->type == TYPE_O && f->flag != ZERO && f->zero)
+		f->zero--;
 }
 
 long long	get_signed(t_format *f, va_list *ap)
 {
+	f->sharp = 0;
 	if (f->length[ll])
 		return (va_arg(*ap, long long));
 	if (f->length[l])
@@ -70,6 +68,7 @@ long long	get_signed(t_format *f, va_list *ap)
 
 unsigned long long	get_unsigned(t_format *f, va_list *ap)
 {
+	f->sign = 0;
 	if (f->length[ll])
 		return (va_arg(*ap, unsigned long long));
 	else if (f->length[l])

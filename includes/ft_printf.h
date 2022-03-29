@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 23:50:29 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 18:56:19 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <stdarg.h>
 # include "libft.h"
 
-# define TYPE "cspdiouxXf%" 
+# define TYPE "csdiouxXpf%" 
 # define LEN "0hlLjzt" 
 # define INIT -1
 # define INVALID -2
@@ -28,13 +28,6 @@ enum e_flag
 	MINUS,
 	ZERO,
 	FLAG_NUM
-};
-
-enum e_extra
-{
-	SHARP,
-	SPACE,
-	EXTRA_NUM
 };
 
 enum e_length
@@ -55,13 +48,13 @@ enum e_type
 {
 	TYPE_C,
 	TYPE_S,
-	TYPE_P,
 	TYPE_D,
 	TYPE_I,
 	TYPE_O,
 	TYPE_U,
 	TYPE_SX,
 	TYPE_LX,
+	TYPE_P,
 	TYPE_F,
 	TYPE_PER,
 	TYPE_NUM
@@ -74,7 +67,6 @@ typedef struct s_format{
 	int		type;
 	int		precision;
 	int		args_len;
-	int		extra_flag[EXTRA_NUM];
 	int		zero;
 	int		space;
 	char	*prefix;
@@ -83,7 +75,15 @@ typedef struct s_format{
 	int		res;
 	int		sign;
 	int		sharp;
+	int		space_flag;
 }				t_format;
+
+struct          s_float
+{
+	uint8_t		float_sign;
+	uint8_t		exp;
+	uint32_t	frac;
+};
 
 /*
 typedef struct s_args{
@@ -123,4 +123,5 @@ int		ft_printf(const char *format, ...);
 /*test.c*/
 # include <stdio.h>
 void	test_print_format(t_format *f);
+void	test_printbitc(uint32_t	c);
 #endif
