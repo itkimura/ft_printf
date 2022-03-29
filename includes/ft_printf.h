@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 18:56:19 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 22:32:38 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,5 +123,5 @@ int		ft_printf(const char *format, ...);
 /*test.c*/
 # include <stdio.h>
 void	test_print_format(t_format *f);
-void	test_printbitc(uint32_t	c);
+void	test_printbitc(long double	c);
 #endif

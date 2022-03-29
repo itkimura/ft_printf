@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 20:39:10 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 19:04:24 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 23:27:32 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,7 @@ void	print_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 	else
 		nb = va_arg(*ap, double);
 	tmp = nb;
-	printf("nb = %Lf\n", nb);
-	printf("nb\t: ");
 	test_printbitc(nb);
-	printf("tmp\t: ");
 	test_printbitc(tmp);
 	if (f->sign && nb >= 0)
 		f->prefix = "+";

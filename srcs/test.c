@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 20:37:44 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 19:04:26 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/29 23:47:04 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,23 +31,34 @@ void	test_print_format(t_format *f)
 	printf("f->space_flag = %d\n", f->space_flag);
 }
 
-void	test_printbitc(uint32_t	c)
+#include <float.h>
+
+union IntAndFloat {
+	int i;
+	long double f;
+};
+
+void	test_printbitc(long double	c)
 {
-	uint32_t	bit;
-	int			i;
+	int i;
+	union IntAndFloat target;
 
 	i = 0;
-	bit = 1 << 31;
-	while (bit != 0)
+	target.f = c;
+	printf("target.f = %Lf\n", target.f);
+	target.f = target.f << 1;
+	printf("target.f = %Lf\n", target.f);
+	while (i < 64)
 	{
-		if (c & bit)
+		if ((target.i & ) == 0x3FEFFFFFFFFFFFFF)
 			putchar('1');
 		else
 			putchar('0');
-		bit >>= 1;
-		i++;
-		if (i == 1 || i == 8)
+		if (i == 1 || i == 11)
 			putchar(' ');
+		target.i = target.i << 1;
+		i++;
 	}
 	putchar('\n');
+	(void)c;
 }
