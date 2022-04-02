@@ -6,16 +6,17 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 14:11:41 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/01 10:21:57 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+void	put_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
 	unsigned char	c;
 
+	c = 0;
 	if (f->type == TYPE_C)
 		c = (unsigned char)va_arg(*ap, int);
 	if (f->type == TYPE_PER)
@@ -31,7 +32,7 @@ void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 	p_flag[f->flag](f, c);
 }
 
-void	print_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+void	put_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
 	char	*s;
 

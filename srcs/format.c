@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:43:45 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/28 20:50:57 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/01 10:21:28 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,21 +30,21 @@ int	is_specifier(char **itr, char *str)
 
 void	print_format(t_format *f, va_list *ap)
 {
-	void	(*p_type[TYPE_NUM])(t_format *, va_list *,
+	void	(*p_type[11])(t_format *, va_list *,
 			void (*p_flag[])(t_format *, char));
-	void	(*p_flag[FLAG_NUM])(t_format *, char);
+	void	(*p_flag[3])(t_format *, char);
 
-	p_type[TYPE_C] = print_c;
-	p_type[TYPE_S] = print_s;
-	p_type[TYPE_P] = print_nbr;
-	p_type[TYPE_D] = print_nbr;
-	p_type[TYPE_O] = print_nbr;
-	p_type[TYPE_I] = print_nbr;
-	p_type[TYPE_U] = print_nbr;
-	p_type[TYPE_SX] = print_nbr;
-	p_type[TYPE_LX] = print_nbr;
-	p_type[TYPE_F] = print_f;
-	p_type[TYPE_PER] = print_c;
+	p_type[TYPE_C] = put_c;
+	p_type[TYPE_S] = put_s;
+	p_type[TYPE_P] = put_nbr;
+	p_type[TYPE_D] = put_nbr;
+	p_type[TYPE_O] = put_nbr;
+	p_type[TYPE_I] = put_nbr;
+	p_type[TYPE_U] = put_nbr;
+	p_type[TYPE_SX] = put_nbr;
+	p_type[TYPE_LX] = put_nbr;
+	p_type[TYPE_F] = put_f;
+	p_type[TYPE_PER] = put_c;
 	p_flag[NONE] = flag_none;
 	p_flag[MINUS] = flag_minus;
 	p_flag[ZERO] = flag_none;

@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 22:32:38 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/02 12:54:07 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,7 @@ enum e_flag
 {
 	NONE,
 	MINUS,
-	ZERO,
-	FLAG_NUM
+	ZERO
 };
 
 enum e_length
@@ -41,7 +40,6 @@ enum e_length
 	t,
 	hh,
 	ll,
-	LEN_NUM
 };
 
 enum e_type
@@ -57,13 +55,12 @@ enum e_type
 	TYPE_P,
 	TYPE_F,
 	TYPE_PER,
-	TYPE_NUM
 };
 
 typedef struct s_format{
 	int		flag;
 	int		width;
-	int		length[LEN_NUM];
+	int		length[9];
 	int		type;
 	int		precision;
 	int		args_len;
@@ -78,12 +75,21 @@ typedef struct s_format{
 	int		space_flag;
 }				t_format;
 
-struct          s_float
+/*
+ * max_digits = 2 ^ -1023 - 53 = 1076 + 1 = 1077
+ * The biggest [ossible int part = 53
+ */
+
+typedef struct	s_float
 {
-	uint8_t		float_sign;
-	uint8_t		exp;
-	uint32_t	frac;
-};
+	int			dot;
+	int			frac_len;
+	uint8_t		sign;
+	uint32_t	exp;
+	uint64_t	frac;
+	int8_t		intpart[53];
+	int8_t		fracpart[1077];
+}				t_float;
 
 /*
 typedef struct s_args{
@@ -98,30 +104,40 @@ typedef struct s_args{
 }				t_args;
 */
 
-/*print.c*/
-int		int_putchar(char c);
-void	flag_none(t_format *f, char c);
-void	flag_minus(t_format *f, char c);
-/*nbr.c*/
-void	nbr_data(t_format *f, unsigned long long nb);
-void	print_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
-void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
-/*str.c*/
-void	print_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
-void	print_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+/*ft_printf.c*/
+void	set_base(t_format *f, unsigned long long nb);
+int		is_specifier(char **itr, char *str);
+int		get_digits(unsigned long long nb, int base);
+int		ft_printf(const char *format, ...);
 /*format.c*/
 int		is_specifier(char **itr, char *str);
 void	print_format(t_format *f, va_list *ap);
 void	put_width(char **itr, t_format *f, va_list *ap);
 void	put_precision(char **itr, t_format *f, va_list *ap);
 void	put_length(char **itr, t_format *f);
-/*ft_printf.c*/
-void	set_base(t_format *f, unsigned long long nb);
-int		is_specifier(char **itr, char *str);
-int		get_digits(unsigned long long nb, int base);
-int		ft_printf(const char *format, ...);
+/*nbr.c*/
+void	nbr_data(t_format *f, unsigned long long nb);
+void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+void	put_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+/*str.c*/
+void	put_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+void	put_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+/*print.c*/
+int		int_putchar(char c);
+void	flag_none(t_format *f, char c);
+void	flag_minus(t_format *f, char c);
+/*float.c*/
+/*float_convert.c*/
+void	convert_intpart(t_float *data);
+void	convert_fracpart(t_float *data, uint64_t tmp);
+/*float_utils.c*/
+void			array_add(int8_t *a, int8_t *b, int size);
+void			array_divbytwo(int8_t *n, int size);
+void			array_double(int8_t *n, int size);
 /*test.c*/
 # include <stdio.h>
+# include <float.h>
 void	test_print_format(t_format *f);
-void	test_printbitc(long double	c);
+void	test_print_float(t_float *data, long double nb);
+void	tbit(uint64_t	c, char *str);
 #endif

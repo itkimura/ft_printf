@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 22:29:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 18:30:07 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/03/30 16:21:09 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	initialize_format(t_format *f)
 	f->prefix = "";
 	f->basestr = "0123456789ABCDEF";
 	i = 0;
-	while (i < LEN_NUM)
+	while (i < 9)
 		f->length[i++] = 0;
 }
 

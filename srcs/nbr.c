@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/03/29 18:37:48 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/01 10:21:42 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ unsigned long long	get_unsigned(t_format *f, va_list *ap)
 	return (0);
 }
 
-void	print_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+void	put_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
 	unsigned long long	nb;
 	long long			tmp_nb;
