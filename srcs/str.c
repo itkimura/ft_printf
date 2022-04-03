@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/01 10:21:57 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 01:21:53 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,12 @@ void	put_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 	p_flag[f->flag](f, c);
 }
 
-void	put_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+void	print_s(t_format *f, char *s, void (*p_flag[])(t_format *, char))
 {
-	char	*s;
-
-	s = (char *)va_arg(*ap, char *);
-	if (s == 0)
-		s = "(null)";
 	if (f->precision == DOT_ONLY)
 		f->precision = 0;
-	f->args_len = ft_strlen(s);
+	else
+		f->args_len = ft_strlen(s);
 	if (f->precision < f->args_len && f->precision >= 0)
 		f->args_len = f->precision;
 	if (f->args_len < f->width)
@@ -58,4 +54,14 @@ void	put_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 		p_flag[f->flag](f, *s);
 		s++;
 	}
+}
+
+void	put_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
+{
+	char		*s;
+
+	s = (char *)va_arg(*ap, char *);
+	if (s == 0)
+		s = "(null)";
+	print_s(f, s, p_flag);
 }

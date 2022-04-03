@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/01 10:21:42 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 00:39:38 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,13 @@ void	set_format(t_format *f, unsigned long long nb)
 			f->space = 0;
 		}
 	}
-	if ((f->type == TYPE_D || f->type == TYPE_I)
-		&& (f->space_flag && f->space == 0 && f->sign == 0))
-		f->space++;
-	if (f->sharp && f->type == TYPE_O && f->flag != ZERO && f->zero)
+	if ((f->type == TYPE_D || f->type == TYPE_I) && f->space_flag && !f->sign)
+	{
+		f->prefix = " ";
+		if (f->space != 0)
+			f->space--;
+	}
+	if (f->sharp && f->type == TYPE_O && f->zero && f->precision != INIT)
 		f->zero--;
 }
 

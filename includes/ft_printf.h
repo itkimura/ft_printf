@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/02 12:54:07 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 01:22:29 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define FT_PRINTF_H
 
 # include <stdarg.h>
+# include <limits.h>
 # include "libft.h"
 
 # define TYPE "csdiouxXpf%" 
@@ -121,6 +122,7 @@ void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	put_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*str.c*/
 void	put_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+void	print_s(t_format *f, char *s, void (*p_flag[])(t_format *, char));
 void	put_s(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*print.c*/
 int		int_putchar(char c);
@@ -129,7 +131,7 @@ void	flag_minus(t_format *f, char c);
 /*float.c*/
 /*float_convert.c*/
 void	convert_intpart(t_float *data);
-void	convert_fracpart(t_float *data, uint64_t tmp);
+void	convert_fracpart(t_float *data);
 /*float_utils.c*/
 void			array_add(int8_t *a, int8_t *b, int size);
 void			array_divbytwo(int8_t *n, int size);
