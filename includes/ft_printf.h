@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 18:30:40 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 22:56:38 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ typedef struct s_format{
  * The biggest [ossible int part = 53
  */
 
-typedef struct	s_float
+typedef struct s_float
 {
 	int			dot;
 	int			frac_len;
@@ -110,9 +110,6 @@ void	set_base(t_format *f, unsigned long long nb);
 void	set_nbrlen(t_format *f, unsigned long long nb);
 void	set_nbrformat(t_format *f, unsigned long long nb);
 /*nbr.c*/
-void	nb_recursive(unsigned long long nb, t_format *f, void (*p_flag[])(t_format *, char));
-long long	get_signed(t_format *f, va_list *ap);
-unsigned long long	get_unsigned(t_format *f, va_list *ap);
 void	put_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*str.c*/
 void	put_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
@@ -124,27 +121,30 @@ void	flag_none(t_format *f, char c);
 void	flag_minus(t_format *f, char c);
 /*float.c*/
 void	float_initialize(t_float *data);
+void	float_format(t_format *f, t_float *data);
+void	get_float(t_format *f, t_float *data, va_list *api, uint64_t *tmp);
+void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+/*float.c*/
 void	float_flag(t_format *f, t_float *data);
 void	float_len(t_format *f, t_float *data);
 void	float_format(t_format *f, t_float *data);
+/*float_rounding.c*/
 int		is_round(t_float *data);
-void	rounding(t_float *data, char *str, int len, int round);
-void	print_floatstr(t_format *f, t_float *data, char *str, void (*p_flag[])(t_format *, char));
+void	rounding(char *str, int round);
 void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char));
-void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*float_convert.c*/
 void	convert_intbit(t_float *data, uint64_t int_tmp);
 void	convert_intpart(t_float *data);
 void	convert_fracbit(t_float *data, uint64_t frac_tmp, int8_t *n);
 void	convert_fracpart(t_float *data);
 /*float_utils.c*/
-void			array_add(int8_t *a, int8_t *b, int size);
-void			array_divbytwo(int8_t *n, int size);
-void			array_double(int8_t *n, int size);
+void	array_add(int8_t *a, int8_t *b, int size);
+void	array_divbytwo(int8_t *n, int size);
+void	array_double(int8_t *n, int size);
 /*test.c*/
 # include <stdio.h>
 # include <float.h>
-void	test_print_format(t_format *f);
-void	test_print_float(t_float *data, long double nb);
+void				test_print_format(t_format *f);
+void				test_print_float(t_float *data, long double nb);
 void	tbit(uint64_t	c, char *str);
 #endif
