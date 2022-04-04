@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 20:39:10 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 01:48:12 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 12:33:25 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ int		is_round(t_float *data, t_format *f)
 void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char), uint64_t tmp)
 {
 	int			round;
+	int			nine;
 	int			len;
 	char		*str;
 	int			flag;
@@ -157,22 +158,21 @@ void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char), uin
 				printf("str[i] = %c ", str[i]);
 				printf("str[i + 1] = %c\n", str[i + 1]);
 */
-		if (str[i + 1] >= '5' && flag && ((round == 2 && ((str[i] - '0') % 2) == 1) || (round == 1)))
+				if (str[i + 1] >= '5' && flag && ((round == 2 && ((str[i] - '0') % 2) == 1) || (round == 1)))
 		{
 			if (str[i + 1] == '9' && str[i] != '9')
 			{
 				str[i]++;
-				flag = 1;
-				while (str[flag] == '9')
+				nine = i + 1;
+				while (str[nine] == '9')
 				{
-					str[flag] = '0';
-					flag++;
+					str[nine] = '0';
+					nine++;
 				}
+				flag = 0;
 			}
 			else if (str[i] != '9')
 				str[i]++;
-			if (str[i] < '5')
-				flag = 0;
 		}
 		i--;
 	}
@@ -221,21 +221,38 @@ int	is_longmax(uint64_t tmp)
 
 void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
-	long double		nb;
+	double		nb;
+	long double		longnb;
 	t_float			data;
 	uint64_t		tmp;
 
 	nb = 0;
 	float_initialize(&data);
-		nb = va_arg(*ap, long double);
-	ft_memcpy(&tmp, &nb, sizeof(uint64_t));
-	
+	(void)longnb;
+	tmp = 0;
+	if (f->length[L])
+	{
+		longnb = va_arg(*ap, long double);
+		memcpy(&tmp, &longnb, sizeof(uint64_t));
+	}
+	else
+	{
+		nb = va_arg(*ap, double);
+		memcpy(&tmp, &nb, sizeof(uint64_t));
+	}
 	data.sign = tmp >> 63;
 	data.exp = tmp >> 52;
 	data.frac = tmp << 12;
-//	tbit(tmp, "\ntmp\t");
+/*
+	test_print_float(&data, nb);
+	printf("f->exp = %d\n", data.exp);
+	printf("nb = %f\n", nb);
+	tbit(nb, "\nnb\t");
+*/
 	if (is_longmax(tmp))
 		print_s(f, "nan", p_flag);
+	else if (data.exp == 2047 && data.frac == 0)
+		print_s(f, "inf", p_flag);
 	else
 	{
 		if (data.sign == 1)

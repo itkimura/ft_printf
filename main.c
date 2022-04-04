@@ -3,7 +3,7 @@
 
 int	main(void)
 {
-	ft_printf("[%.5hho]", 0);
-	printf("[%.5hho]", 0);
+	ft_printf("[%f]", 10.25);
+	printf("[%f]", 10.25);
 	return (0);
 }
