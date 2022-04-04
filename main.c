@@ -3,7 +3,7 @@
 
 int	main(void)
 {
-	ft_printf("[%f]", 10.25);
-	printf("[%f]", 10.25);
+	ft_printf("{%f}{%lf}{%Lf}\n", 1.42, 1.42, 1.42l);
+	printf("{%f}{%lf}{%Lf}\n", 1.42, 1.42, 1.42l);
 	return (0);
 }

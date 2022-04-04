@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 20:39:10 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 12:33:25 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 19:29:46 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ void	float_initialize(t_float *data)
 
 void	float_flag(t_format *f, t_float *data)
 {
-//	printf("data->sign = %d\nf->sharp = %d\nf->sign = %d\n", data->sign, f->sharp, f->sign);
 	if (data->sign == 1)
 	{
 		f->prefix = "-";
@@ -38,7 +37,6 @@ void	float_flag(t_format *f, t_float *data)
 
 void	float_len(t_format *f, t_float *data)
 {
-//	test_print_format(f);
 	while (data->intpart[data->dot] == 0 && data->dot < 53)
 		data->dot++;
 	if (data->dot == 53)
@@ -53,7 +51,6 @@ void	float_len(t_format *f, t_float *data)
 		data->frac_len = 1;
 	else
 		data->frac_len = 0;
-//	printf("args_len = %d\n", f->args_len);
 }
 
 void	float_format(t_format *f, t_float *data)
@@ -61,8 +58,6 @@ void	float_format(t_format *f, t_float *data)
 	float_len(f, data);
 	float_flag(f, data);
 	f->args_len = data->dot + data->frac_len;
-//	test_print_format(f);
-//	test_print_float(data, 0.0);
 	if (f->args_len < f->width)
 	{
 		f->space = f->width - f->args_len - f->zero - f->sign;
@@ -76,113 +71,83 @@ void	float_format(t_format *f, t_float *data)
 		f->space++;
 }
 
-int		is_round(t_float *data, t_format *f)
+int		is_round(t_float *data)
 {
 	int		i;
 	int		res;
 	int		start;
-//	printf("data->fracpart\t: ");
-//	for (int i = 0; i < 100; i++)
-//		printf("%d", data->fracpart[i]);
-//	printf("\n");
-	(void)f;
+
 	res = 0;
 	if (data->frac_len == 0)
 		start = 0;
 	else
 		start = data->frac_len - 1;
-//	printf("data->fracpart[%d] = %d\n", start, data->fracpart[start]);
-	if (data->fracpart[start] >= 5)
-	{
-		i = start;
-		while (i < 1077)
-		{
-			if (data->fracpart[i])
-				res = 1;
-			i++;
-		}
-	}
+	if (data->fracpart[start] > 5)
+		return (1);
 	if (data->fracpart[start] == 5)
 	{
 		i = start + 1;
-		while (data->fracpart[i] == 0)
+		while (data->fracpart[i] == 0 && i < 1077)
 			i++;
 		if (i == 1077)
 			res = 2;
+		else
+			res = 1;
 	}
 	return (res);
 }
 
-void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char), uint64_t tmp)
+
+void	rounding(t_float *data, char *str, int len, int round)
 {
-	int			round;
-	int			nine;
-	int			len;
-	char		*str;
-	int			flag;
-	int			i;
-	/*
-	printf("data->fracpart\t: ");
-	for(int i = 0; i < 53; i++)
-		printf("%d", data->fracpart[i]);
-	printf("\n");
-	printf("data->intpart\t: ");
-	for(int i = 0; i < 53; i++)
-		printf("%d", data->intpart[i]);
-	printf("\n");
-*/
-//	printf("f->args_len = %d\n", f->args_len);
-//	printf("data->dot = %d\n", data->dot);
-	if (f->args_len < 4)
-		len = 4;
-	else
-		len = f->args_len + 1;
-	str = ft_strnew(len);
-	i = len;
-	round = is_round(data, f);
+	int	i;
+	int	j;
+	int	flag;
+
+	i = len - 2;
 	flag = 1;
-	//printf("round = %d\n", round);
-//	for (int i = 0 ; i < f->args_len; i++)
-//		str[i] = '0';
-//	printf("str = %s\n", str);
-	str[0] = '0';
 	while (i >= 0)
 	{
-		if (i > data->dot)
-			str[i] = data->fracpart[i - (data->dot + 1)] + '0';
-		else
-			str[i] = data->intpart[52 - (data->dot - i)] + '0';
-/*
-				printf("flag = %d ", flag);
-				printf("i = %d ", i);
-				printf("str[i] = %c ", str[i]);
-				printf("str[i + 1] = %c\n", str[i + 1]);
-*/
-				if (str[i + 1] >= '5' && flag && ((round == 2 && ((str[i] - '0') % 2) == 1) || (round == 1)))
+		if (str[i + 1] >= '5' && flag
+			&& ((round == 2 && ((str[i] - '0') % 2) == 1) || (round == 1)))
 		{
 			if (str[i + 1] == '9' && str[i] != '9')
 			{
-				str[i]++;
-				nine = i + 1;
-				while (str[nine] == '9')
-				{
-					str[nine] = '0';
-					nine++;
-				}
+				j = i + 1;
+				while (str[j] == '9')
+					str[j++] = '0';
 				flag = 0;
 			}
-			else if (str[i] != '9')
+			if (str[i] != '9')
+			{
 				str[i]++;
+				flag = 0;
+			}
 		}
+		if (str[i + 1] >= '5' && round == 2 && ((str[i] - '0') % 2) == 0)
+			break ;
 		i--;
 	}
-	//printf("str = %s\n", str);
+	(void)data;
+	(void)str;
+}
+
+
+void	print_floatstr(t_format *f, t_float *data, char *str, void (*p_flag[])(t_format *, char))
+{
+	int		len;
+	int		i;
+
 	len = f->args_len + 1;
 	if (str[0] != '0')
 	{
 		i = 0;
 		f->args_len++;
 		len++;
+		if (f->space)
+			f->space--;
+		else if (f->flag == ZERO && f->zero)
+			f->zero--;
 	}
 	else
 		i = 1;
@@ -193,9 +158,32 @@ void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char), uin
 			p_flag[f->flag](f, '.');
 		i++;
 	}
+}
+
+void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char))
+{
+	int			len;
+	char		*str;
+	int			i;
+
+	if (f->args_len < 4)
+		len = 4;
+	else
+		len = f->args_len + 1;
+	str = ft_strnew(len);
+	i = len;
+	str[0] = '0';
+	while (i >= 0)
+	{
+		if (i > data->dot)
+			str[i] = data->fracpart[i - (data->dot + 1)] + '0';
+		else
+			str[i] = data->intpart[52 - (data->dot - i)] + '0';
+		i--;
+	}
+	rounding(data, str, len, is_round(data)); 
+	print_floatstr(f, data, str, p_flag);
 	free(str);
-	(void)tmp;
-	(void)p_flag;
 }
 
 int	is_longmax(uint64_t tmp)
@@ -219,6 +207,8 @@ int	is_longmax(uint64_t tmp)
 		return (0);
 }
 
+
+
 void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 {
 	double		nb;
@@ -227,32 +217,27 @@ void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 	uint64_t		tmp;
 
 	nb = 0;
-	float_initialize(&data);
-	(void)longnb;
 	tmp = 0;
+	float_initialize(&data);
 	if (f->length[L])
 	{
-		longnb = va_arg(*ap, long double);
-		memcpy(&tmp, &longnb, sizeof(uint64_t));
+		longnb = va_arg(*ap,long double);
+		nb = (double)longnb;
 	}
 	else
-	{
 		nb = va_arg(*ap, double);
-		memcpy(&tmp, &nb, sizeof(uint64_t));
-	}
+	memcpy(&tmp, &nb, sizeof(uint64_t));
 	data.sign = tmp >> 63;
 	data.exp = tmp >> 52;
 	data.frac = tmp << 12;
-/*
-	test_print_float(&data, nb);
-	printf("f->exp = %d\n", data.exp);
-	printf("nb = %f\n", nb);
-	tbit(nb, "\nnb\t");
-*/
 	if (is_longmax(tmp))
 		print_s(f, "nan", p_flag);
 	else if (data.exp == 2047 && data.frac == 0)
+	{
+		if (f->flag == ZERO)
+			f->flag = NONE;
 		print_s(f, "inf", p_flag);
+	}
 	else
 	{
 		if (data.sign == 1)
@@ -260,7 +245,7 @@ void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 		convert_intpart(&data);
 		convert_fracpart(&data);
 		float_format(f, &data);
-		print_f(f, &data, p_flag, tmp);
+		print_f(f, &data, p_flag);
 	}
 
 }

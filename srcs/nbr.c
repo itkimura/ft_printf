@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 21:37:47 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 00:39:38 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 16:42:36 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,35 +22,6 @@ void	nb_recursive(unsigned long long nb, t_format *f,
 	}
 	else
 		p_flag[f->flag](f, f->basestr[nb]);
-}
-
-void	set_format(t_format *f, unsigned long long nb)
-{
-	if (f->type == TYPE_O && f->sharp && nb == 0)
-		f->args_len = 1;
-	else if (f->precision == -1 && nb == 0)
-		f->args_len = 1;
-	else
-		f->args_len = get_digits(nb, f->base);
-	if (f->args_len < f->precision)
-		f->zero = f->precision - f->args_len;
-	if (f->args_len + f->zero < f->width)
-	{
-		f->space = f->width - f->args_len - f->zero - f->sign - f->sharp;
-		if (f->flag == ZERO && f->zero == 0 && (f->precision == -1 || f->precision == INVALID))
-		{
-			f->zero = f->space - f->space_flag;
-			f->space = 0;
-		}
-	}
-	if ((f->type == TYPE_D || f->type == TYPE_I) && f->space_flag && !f->sign)
-	{
-		f->prefix = " ";
-		if (f->space != 0)
-			f->space--;
-	}
-	if (f->sharp && f->type == TYPE_O && f->zero && f->precision != INIT)
-		f->zero--;
 }
 
 long long	get_signed(t_format *f, va_list *ap)
@@ -111,6 +82,6 @@ void	put_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char))
 	else
 		nb = get_unsigned(f, ap);
 	set_base(f, nb);
-	set_format(f, nb);
+	set_nbrformat(f, nb);
 	nb_recursive(nb, f, p_flag);
 }

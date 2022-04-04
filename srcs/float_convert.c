@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 20:39:10 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 10:03:56 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 19:07:15 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	convert_intpart(t_float *data)
 	else if (data->exp < 1023 + 52)
 		offset = data->exp - 1023;
 	else
-		offset = 52;
+		offset = 53;
 	if (offset == 0)
 		int_tmp = 1;
 	else
@@ -64,10 +64,6 @@ void	convert_fracbit(t_float *data, uint64_t frac_tmp, int8_t *n)
 		if (frac_tmp & bit)
 			array_add(data->fracpart, n, 1077);
 		array_divbytwo(n, 1077);
-//		printf("data->fracpart\t: ");
-//		for (int i = 0; i < 100; i++)
-//			printf("%d", data->fracpart[i]);
-//		printf("\n");
 		bit >>= 1;
 		i++;
 	}
@@ -81,12 +77,10 @@ void	convert_fracpart(t_float *data)
 
 	ft_memset(n, 0, sizeof(n));
 	n[0] = 5;
-//	printf("data->exp = %d\n", data->exp);
 	if (data->exp >= 53 + 1023 || (data->exp == 0 && data->frac == 0))
 		return ;
 	else if (data->exp >= 1023)
 		frac_tmp = data->frac << (data->exp - 1023);
-//		printf("data->exp - 1023 = %d\n", data->exp - 1023);
 	else if (data->exp == 0)
 		frac_tmp = data->frac;
 	else
@@ -99,11 +93,5 @@ void	convert_fracpart(t_float *data)
 			i++;
 		}
 	}
-//	tbit(data->frac, "data->frac");
-//	tbit(frac_tmp, "frac_tmp");
-//	printf("n\t: ");
-//	for (int i = 0; i < 100; i++)
-//		printf("%d", n[i]);
-//	printf("\n");
 	convert_fracbit(data, frac_tmp, n);
 }

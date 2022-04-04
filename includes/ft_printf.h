@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 10:12:12 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/04 18:30:40 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,23 +92,11 @@ typedef struct	s_float
 	int8_t		fracpart[1077];
 }				t_float;
 
-/*
-typedef struct s_args{
-	int	c;
-	int	flag;
-	int	width;
-	int	padding;
-	int	has_width;
-	int	precision;
-	int	alignment;
-	int	has_precision;
-}				t_args;
-*/
-
 /*ft_printf.c*/
-void	set_base(t_format *f, unsigned long long nb);
-int		is_specifier(char **itr, char *str);
+void	initialize_format(t_format *f);
 int		get_digits(unsigned long long nb, int base);
+void	put_flag(t_format *f, char **itr);
+int		read_percentage(t_format *f, char **itr, va_list *ap);
 int		ft_printf(const char *format, ...);
 /*format.c*/
 int		is_specifier(char **itr, char *str);
@@ -116,9 +104,15 @@ void	print_format(t_format *f, va_list *ap);
 void	put_width(char **itr, t_format *f, va_list *ap);
 void	put_precision(char **itr, t_format *f, va_list *ap);
 void	put_length(char **itr, t_format *f);
+/*nbr_format.c*/
+void	set_sharp(t_format *f, unsigned long long nb);
+void	set_base(t_format *f, unsigned long long nb);
+void	set_nbrlen(t_format *f, unsigned long long nb);
+void	set_nbrformat(t_format *f, unsigned long long nb);
 /*nbr.c*/
-void	nbr_data(t_format *f, unsigned long long nb);
-void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
+void	nb_recursive(unsigned long long nb, t_format *f, void (*p_flag[])(t_format *, char));
+long long	get_signed(t_format *f, va_list *ap);
+unsigned long long	get_unsigned(t_format *f, va_list *ap);
 void	put_nbr(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*str.c*/
 void	put_c(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
@@ -129,8 +123,19 @@ int		int_putchar(char c);
 void	flag_none(t_format *f, char c);
 void	flag_minus(t_format *f, char c);
 /*float.c*/
+void	float_initialize(t_float *data);
+void	float_flag(t_format *f, t_float *data);
+void	float_len(t_format *f, t_float *data);
+void	float_format(t_format *f, t_float *data);
+int		is_round(t_float *data);
+void	rounding(t_float *data, char *str, int len, int round);
+void	print_floatstr(t_format *f, t_float *data, char *str, void (*p_flag[])(t_format *, char));
+void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char));
+void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 /*float_convert.c*/
+void	convert_intbit(t_float *data, uint64_t int_tmp);
 void	convert_intpart(t_float *data);
+void	convert_fracbit(t_float *data, uint64_t frac_tmp, int8_t *n);
 void	convert_fracpart(t_float *data);
 /*float_utils.c*/
 void			array_add(int8_t *a, int8_t *b, int size);
