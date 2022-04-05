@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 16:11:48 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 22:56:38 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/05 12:56:08 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ typedef struct s_format{
 
 typedef struct s_float
 {
+	double		nb;
 	int			dot;
 	int			frac_len;
 	uint8_t		sign;
@@ -128,10 +129,13 @@ void	put_f(t_format *f, va_list *ap, void (*p_flag[])(t_format *, char));
 void	float_flag(t_format *f, t_float *data);
 void	float_len(t_format *f, t_float *data);
 void	float_format(t_format *f, t_float *data);
-/*float_rounding.c*/
-int		is_round(t_float *data);
-void	rounding(char *str, int round);
+/*float_print.c*/
 void	print_f(t_format *f, t_float *data, void (*p_flag[])(t_format *, char));
+/*float_rounding.c*/
+int		remaining(t_float *data, int start);
+int		is_round(t_float *data, char *str);
+void	round_check(int i, char *str, int *flag);
+void	rounding(char *str, int round);
 /*float_convert.c*/
 void	convert_intbit(t_float *data, uint64_t int_tmp);
 void	convert_intpart(t_float *data);
@@ -142,9 +146,4 @@ void	array_add(int8_t *a, int8_t *b, int size);
 void	array_divbytwo(int8_t *n, int size);
 void	array_double(int8_t *n, int size);
 /*test.c*/
-# include <stdio.h>
-# include <float.h>
-void				test_print_format(t_format *f);
-void				test_print_float(t_float *data, long double nb);
-void	tbit(uint64_t	c, char *str);
 #endif

@@ -6,7 +6,7 @@
 /*   By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 20:39:10 by itkimura          #+#    #+#             */
-/*   Updated: 2022/04/04 22:42:43 by itkimura         ###   ########.fr       */
+/*   Updated: 2022/04/05 12:52:07 by itkimura         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	get_float(t_format *f, t_float *data, va_list *ap, uint64_t *tmp)
 	}
 	else
 		nb = va_arg(*ap, double);
-	memcpy(tmp, &nb, sizeof(uint64_t));
+	ft_memcpy(tmp, &nb, sizeof(uint64_t));
 	data->sign = *tmp >> 63;
 	data->exp = *tmp >> 52;
 	data->frac = *tmp << 12;

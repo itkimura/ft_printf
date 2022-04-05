@@ -6,7 +6,7 @@
 #    By: itkimura <itkimura@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/09 14:48:02 by itkimura          #+#    #+#              #
-#    Updated: 2022/04/04 22:33:11 by itkimura         ###   ########.fr        #
+#    Updated: 2022/04/05 12:54:22 by itkimura         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ FLAGS = -Wall -Werror -Wextra
 SRCS_DIR = ./srcs/
 SRC_FILES = ft_printf.c format.c nbr.c str.c nbr_format.c print.c \
 			float.c float_format.c float_convert.c float_utils.c \
-			float_rounding.c test.c
+			float_rounding.c float_print.c
 SRCS		= $(addprefix	$(SRCS_DIR), $(SRC_FILES))
 OBJS		= $(addprefix	$(OBJS_DIR), $(SRC_FILES:.c=.o))
 OBJS_DIR = ./objects/
